@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["accounts","payment_instruments","payments","refunds"]};

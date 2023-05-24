@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["hiring_challenge_rust"];

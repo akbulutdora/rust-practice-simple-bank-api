@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["FIELDS"],"enum":["__Field"],"fn":["get","post"],"struct":["RequestBody","RequestData","ResponseBody","ResponseData","__FieldVisitor","__Visitor"]};
