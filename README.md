@@ -1,65 +1,50 @@
-# Code Challenge
+In this small project, I started from scaffold code to implement a JSON bank API to handle:
 
-You'll be implementing a basic bank JSON API with payments and refunds:
+- `POST` to `/payments` - seller issues a payment
+- `POST` to `/payments/PAYMENT_ID/refunds` - seller makes a (potentially partial) refund against a payment
 
-- `POST` to `/payments` to create a new payment
-- `POST` to `/payments/PAYMENT_ID/refunds` to make a (potentially partial) refund against a payment
+The API uses the Postgres instance with docker.
 
-The bank will deploy this API into production, where all instances will connect to the same single Postgres DB instance.
+Constraints: 
+- Each time a `/payments` POST request is attempted, a new credit card number must be used.
+- Payments will stored in an `integer` column in a DB.
 
-When clients buy something on an e-commerce website, merchants will call the `/payments` API endpoint to request money from that person's bank account. If the bank approves the request, the sale will succeed. Sometimes, e.g. if it turns out some goods can't be shipped (e.g. out of stock), refunds must be issued to the customers by calling the `/payments/PAYMENT_ID/refunds` endpoint to credit money back to the customer's bank account.
+There is a stubbed `Bank.Accounts.DummyService` to check whether a card holder has enough funds. This service would normally be located in a remote microservice.
 
-The bank provides its clients with single-use credit cards: each time a `/payments` POST request is attempted, a new credit card number must be used. And since these are intended for "everyday" purchases, the API won't have to deal with huge numbers (payment amounts will comfortably fit in an `integer` DB column).
-
-Internally, the bank has a legacy "accounts service" that will verify that a given customer has sufficient funds for a given payment. For this exercise, this service has been stubbed out as the `Bank.Accounts.DummyService` but please bear in mind that the underlying implementation would be located within a remote microservice.
-
-## Scaffolding
-
-We've provided a barebones code repository in the hopes it will save you time. However, none of this is set in stone and don't feel constrained: if you want to rewrite the whole thing or just parts, don't let your dreams be dreams and go for it!
-
-### Getting Up and Running
-
-Before you start you need to make sure the database is running using the provided `docker-compose.yml`: run `docker compose up -d`.
-
-> :warning: **You may need to adapt the port on which the DB listens**, if port `5432` is already in use: change `ports` in `docker-compose.yml` to e.g. `- 5050:5432` where `5050` is an available port, and update `.env` accordingly.
-
-Install sqlx-cli: `cargo install sqlx-cli`
-
-Fetch the dependencies: `cargo build` (this will yield errors, but worry not: they'll be fixed in the next step)
-
-And finally run the migrations with:
+### Running
 
 ```sh
+# Adjust ports if 5432 is in use.
+docker compose up -d
+
+cargo install sqlx-cli
+
+# This might yield errors but they'll be fixed in the next step
+cargo build
+
 cargo sqlx migrate run
 ```
 
-We've documented the API requirement below, but if you prefer to jump into the deep end of the pool, you can be off to the races with:
+The code can be tested with `cargo test`.
 
-```sh
-cargo test
-```
-
-Getting the failing tests to pass should help you get going, and perhaps you'll find the meagre documentation useful also: view it with `cargo doc --no-deps --open`.
+Initial documentation -> `cargo doc --no-deps --open`.
 
 # /payments
 
-The payments endpoint handles removing money from the customer's bank account: this money will later be transferred to the merchant (through a process called settlement), but that won't concern us here.
+The payments endpoint handles removing money from the customer's bank account. The rest is not our concern here.
 
-Since this is dealing with money, the API only exposes endpoints to create new payments and view existing payments: it's not possible to (e.g.) edit or delete payments from the API.
+It's not possible to edit or delete payments from the API.
 
 ## Accounts service
 
-As mentioned, the bank has an "accounts service" which is hosted in a separate micro-service.
+If the customer has enough funds on their account, this service will be used to place a hold. The hold will be relased or withdrawn depending on the business logic.
 
-This service is used to determine whether a customer has sufficient funds on their account, by attempting to place a [hold](https://en.wikipedia.org/wiki/Authorization_hold) on the requested amount: while a hold is present for an amount of money, that amount is "locked" and can't be spent by the customer (the difference between their [current](https://en.wikipedia.org/wiki/Authorization_hold) and [actual](https://www.creditkarma.com/money/i/current-balance-vs-available-balance#available-balance-what-to-know) balances would be the amount being held). A hold MUST then be either released (e.g. because the purchase was canceled by either party), or withdrawn from the customer's account thereby reducing their balance (and deleting the associated hold).
+One of the constraints is to send as little requests to the Accounts service as possible. Note that these requests will not fail. There is no need for error handling on this side.
 
-The accounts service doesn't respond well to load: unnecessary requests to it are to be avoided.
-
-For this challenge, the implementation has been abstracted away, however you can safely assume that calls to this remote service DO NOT fail: their implementation relies on persistent, retryable jobs.
-
+// TODO: I was here
 ## Creation
 
-`POST`ing to `/api/payments` with valid data should create a new payment. Valid data is defined as follows:
+`POST`ing to `/api/payments` with valid data creates a new payment. Valid data is defined as follows:
 
 - `amount`: a positive `integer` value representing the monetary amount that is requested from the client's account. It represents the amount in the EUR currency, in cents: a EUR 10.45 purchase would be encoded as an amount of `1045`.
 - `card_number`: a 15-digit numerical-only `string` value containing the single-use credit card number to use for the purchase. This value is expected to be unique, and there's no need to consider this a particularly sensitive information as every card number can be assumed to no longer be usable as soon as it hits an API endpoint: the card number can be logged, stored in clear in the DB, etc.
