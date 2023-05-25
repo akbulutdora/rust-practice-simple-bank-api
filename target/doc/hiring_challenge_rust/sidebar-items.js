@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["init_tracing","main","pg_pool"],"mod":["bank","bank_web"],"static":["CALLSITE","META"]};

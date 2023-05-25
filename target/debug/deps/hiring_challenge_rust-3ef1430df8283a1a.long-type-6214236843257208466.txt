@@ -1,1 +1,0 @@
-sqlx::query::Map<'_, Postgres, [closure@/Users/dora/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-0.6.2/src/macros/mod.rs:561:9: 561:102], PgArguments>

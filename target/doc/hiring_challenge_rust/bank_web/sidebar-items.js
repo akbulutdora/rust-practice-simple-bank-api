@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["payments","refunds"],"struct":["BankWeb"]};

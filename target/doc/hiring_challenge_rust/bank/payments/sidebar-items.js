@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["VARIANTS"],"enum":["Status","__Field"],"fn":["get","get_by_card_number","insert"],"struct":["Payment","Record","__FieldVisitor","__Visitor"]};

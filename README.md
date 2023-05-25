@@ -200,10 +200,3 @@ The following scenarios, however, would fail with the last refund request listed
   1. refund for 9_00
 
 The failed refund attempt would return a 422 status.
-
-## What About Testing?
-The challenge ships with some tests to get you started. Feel free to add to them, change them, or even (gasp!) delete them.
-
-We won't be looking at your test suite: we've got our own that has been lovingly hand-crafted and pays special attention to the things we care about (and we'll also do a code review). So if you always write bug-free code there's no need to write any tests (and definitely come work for us!). Or you can write some horrible quick-and-dirty test code you're ashamed of and delete it before committing so no other human sets eyes on it: you do you. In the context of this challenge, what counts at the end of the day is working software.
-
-Oh, and just be aware that if you do join us, comprehensive test coverage is definitely high on our list of things we care about in production-level code: don't want to be giving the wrong impression here...
